@@ -97,4 +97,144 @@ namespace Microsoft { namespace Devices { namespace Management { namespace Messa
 
     };
 
+	// ADDED: geertp 20/03/2018 ->
+	public ref class TpmStoreServiceUrlRequest sealed : public IRequest
+	{
+		int32_t slot;
+		String^ url;
+
+	public:
+		TpmStoreServiceUrlRequest(int32_t slot, String^ url) : slot(slot), url(url) {}
+
+		virtual Blob^ Serialize() {
+			JsonObject^ jsonObject = ref new JsonObject();
+			jsonObject->Insert("Slot", JsonValue::CreateNumberValue(slot));
+			jsonObject->Insert("Url", JsonValue::CreateStringValue(url));
+			return SerializationHelper::CreateBlobFromJson((uint32_t)Tag, jsonObject);
+		}
+
+		static IDataPayload^ Deserialize(Blob^ blob) {
+			assert(blob->Tag == DMMessageKind::TpmStoreServiceUrl);
+			String^ str = SerializationHelper::GetStringFromBlob(blob);
+			JsonObject^ jsonObject = JsonObject::Parse(str);
+			int32_t slot = (int32_t)jsonObject->Lookup("Slot")->GetNumber();
+			String^ url = jsonObject->Lookup("Url")->GetString();
+			return ref new TpmStoreServiceUrlRequest(slot, url);
+		}
+
+		virtual property DMMessageKind Tag {
+			DMMessageKind get();
+		}
+
+		property int Slot {
+			int get() { return slot; }
+		}
+
+		property String^ Url {
+			String^ get() { return url; }
+		}
+
+	};
+
+	public ref class TpmCreatePersistedHmacKeyRequest sealed : public IRequest
+	{
+		int32_t slot;
+		String^ hmacKey;
+
+	public:
+		TpmCreatePersistedHmacKeyRequest(int32_t slot, String^ hmacKey) : slot(slot), hmacKey(hmacKey) {}
+
+		virtual Blob^ Serialize() {
+			JsonObject^ jsonObject = ref new JsonObject();
+			jsonObject->Insert("Slot", JsonValue::CreateNumberValue(slot));
+			jsonObject->Insert("HmacKey", JsonValue::CreateStringValue(hmacKey));
+			return SerializationHelper::CreateBlobFromJson((uint32_t)Tag, jsonObject);
+		}
+
+		static IDataPayload^ Deserialize(Blob^ blob) {
+			assert(blob->Tag == DMMessageKind::TpmCreatePersistedHmacKey);
+			String^ str = SerializationHelper::GetStringFromBlob(blob);
+			JsonObject^ jsonObject = JsonObject::Parse(str);
+			int32_t slot = (int32_t)jsonObject->Lookup("Slot")->GetNumber();
+			String^ hmacKey = jsonObject->Lookup("HmacKey")->GetString();
+			return ref new TpmCreatePersistedHmacKeyRequest(slot, hmacKey);
+		}
+
+		virtual property DMMessageKind Tag {
+			DMMessageKind get();
+		}
+
+		property int Slot {
+			int get() { return slot; }
+		}
+
+		property String^ HmacKey {
+			String^ get() { return hmacKey; }
+		}
+
+	};
+
+	public ref class TpmDestroyServiceUrlRequest sealed : public IRequest
+	{
+		int32_t slot;
+
+	public:
+		TpmDestroyServiceUrlRequest(int32_t slot) : slot(slot) {}
+
+		virtual Blob^ Serialize() {
+			JsonObject^ jsonObject = ref new JsonObject();
+			jsonObject->Insert("Slot", JsonValue::CreateNumberValue(slot));
+			return SerializationHelper::CreateBlobFromJson((uint32_t)Tag, jsonObject);
+		}
+
+		static IDataPayload^ Deserialize(Blob^ blob) {
+			assert(blob->Tag == DMMessageKind::TpmDestroyServiceUrl);
+			String^ str = SerializationHelper::GetStringFromBlob(blob);
+			JsonObject^ jsonObject = JsonObject::Parse(str);
+			int32_t slot = (int32_t)jsonObject->Lookup("Slot")->GetNumber();
+			return ref new TpmDestroyServiceUrlRequest(slot);
+		}
+
+		virtual property DMMessageKind Tag {
+			DMMessageKind get();
+		}
+
+		property int Slot {
+			int get() { return slot; }
+		}
+
+	};
+
+	public ref class TpmEvictHmacKeyRequest sealed : public IRequest
+	{
+		int32_t slot;
+
+	public:
+		TpmEvictHmacKeyRequest(int32_t slot) : slot(slot) {}
+
+		virtual Blob^ Serialize() {
+			JsonObject^ jsonObject = ref new JsonObject();
+			jsonObject->Insert("Slot", JsonValue::CreateNumberValue(slot));
+			return SerializationHelper::CreateBlobFromJson((uint32_t)Tag, jsonObject);
+		}
+
+		static IDataPayload^ Deserialize(Blob^ blob) {
+			assert(blob->Tag == DMMessageKind::TpmEvictHmacKey);
+			String^ str = SerializationHelper::GetStringFromBlob(blob);
+			JsonObject^ jsonObject = JsonObject::Parse(str);
+			int32_t slot = (int32_t)jsonObject->Lookup("Slot")->GetNumber();
+			return ref new TpmEvictHmacKeyRequest(slot);
+		}
+
+		virtual property DMMessageKind Tag {
+			DMMessageKind get();
+		}
+
+		property int Slot {
+			int get() { return slot; }
+		}
+
+	};
+	// ADDED: geertp 20/03/2018 <-
+
 }}}}

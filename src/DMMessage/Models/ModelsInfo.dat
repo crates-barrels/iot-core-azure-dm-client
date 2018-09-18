@@ -53,3 +53,14 @@ MODEL_ALLDEF(   GetWindowsTelemetry,         120, GetWindowsTelemetryRequest,   
 MODEL_REQDEF(   SetWindowsTelemetry,         121, SetWindowsTelemetryRequest,           StatusCodeResponse )
 MODEL_REQDEF(   RemoteWipe,                  122, RemoteWipeRequest,                    StatusCodeResponse )
 MODEL_REQDEF(   UsoClientCmd,                123, UsoClientCmdRequest,                  StatusCodeResponse )
+
+// ADDED: geertp 20/03/2018 ->
+MODEL_REQDEF(   TpmStoreServiceUrl,          10000,	TpmStoreServiceUrlRequest,          StatusCodeResponse )
+MODEL_REQDEF(   TpmCreatePersistedHmacKey,   10001, TpmCreatePersistedHmacKeyRequest,   StatusCodeResponse )
+MODEL_REQDEF(   TpmDestroyServiceUrl,		 10002, TpmDestroyServiceUrlRequest,		StatusCodeResponse )
+MODEL_REQDEF(   TpmEvictHmacKey,			 10003, TpmEvictHmacKeyRequest,				StatusCodeResponse )
+// ADDED: geertp 20/03/2018 <-
+
+// ADDED: geertp 23/03/2018 ->
+MODEL_REQDEF(   LaunchProcess,				 10010, LaunchProcessRequest,				StringResponse )
+// ADDED: geertp 23/03/2018 <-

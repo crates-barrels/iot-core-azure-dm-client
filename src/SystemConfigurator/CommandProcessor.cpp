@@ -774,6 +774,120 @@ IResponse^ HandleTpmGetSASToken(IRequest^ request)
     return ref new StringResponse(ResponseStatus::Success, ref new Platform::String(sasTokenW.c_str()), request->Tag);
 }
 
+// ADDED: geertp 20/03/2018 ->
+IResponse^ HandleTpmStoreServiceUrl(IRequest^ request)
+{
+	TRACE(__FUNCTION__);
+
+	TpmStoreServiceUrlRequest^ req = dynamic_cast<TpmStoreServiceUrlRequest^>(request);
+
+	unsigned long logicalDeviceId = 0;
+	std::wstring urlW(req->Url->Begin());
+	std::string url(urlW.begin(), urlW.end());
+
+	if (req->Slot >= 0)
+	{
+		logicalDeviceId = static_cast<unsigned long>(req->Slot);
+	}
+	else
+	{
+		Utils::TryReadRegistryValue(TpmSlotRegistrySubKey, TpmSlotPropertyName, logicalDeviceId);
+	}
+	TRACEP(L"logicalDeviceId=", logicalDeviceId);
+
+	Tpm::StoreServiceUrl((uint32_t)logicalDeviceId, url);
+
+	return ref new StatusCodeResponse(ResponseStatus::Success, request->Tag);
+}
+IResponse^ HandleTpmCreatePersistedHmacKey(IRequest^ request)
+{
+	TRACE(__FUNCTION__);
+
+	TpmCreatePersistedHmacKeyRequest^ req = dynamic_cast<TpmCreatePersistedHmacKeyRequest^>(request);
+
+	unsigned long logicalDeviceId = 0;
+	std::wstring keyW(req->HmacKey->Begin());
+	std::string key(keyW.begin(), keyW.end());
+
+	if (req->Slot >= 0)
+	{
+		logicalDeviceId = static_cast<unsigned long>(req->Slot);
+	}
+	else
+	{
+		Utils::TryReadRegistryValue(TpmSlotRegistrySubKey, TpmSlotPropertyName, logicalDeviceId);
+	}
+	TRACEP(L"logicalDeviceId=", logicalDeviceId);
+
+	Tpm::CreatePersistedHmacKey((uint32_t)logicalDeviceId, key);
+
+	return ref new StatusCodeResponse(ResponseStatus::Success, request->Tag);
+}
+IResponse^ HandleTpmDestroyServiceUrl(IRequest^ request)
+{
+	TRACE(__FUNCTION__);
+
+	TpmDestroyServiceUrlRequest^ req = dynamic_cast<TpmDestroyServiceUrlRequest^>(request);
+
+	unsigned long logicalDeviceId = 0;
+	if (req->Slot >= 0)
+	{
+		logicalDeviceId = static_cast<unsigned long>(req->Slot);
+	}
+	else
+	{
+		Utils::TryReadRegistryValue(TpmSlotRegistrySubKey, TpmSlotPropertyName, logicalDeviceId);
+	}
+	TRACEP(L"logicalDeviceId=", logicalDeviceId);
+
+	Tpm::DestroyServiceUrl((uint32_t)logicalDeviceId);
+
+	return ref new StatusCodeResponse(ResponseStatus::Success, request->Tag);
+}
+IResponse^ HandleTpmEvictHmacKey(IRequest^ request)
+{
+	TRACE(__FUNCTION__);
+
+	TpmEvictHmacKeyRequest^ req = dynamic_cast<TpmEvictHmacKeyRequest^>(request);
+
+	unsigned long logicalDeviceId = 0;
+	if (req->Slot >= 0)
+	{
+		logicalDeviceId = static_cast<unsigned long>(req->Slot);
+	}
+	else
+	{
+		Utils::TryReadRegistryValue(TpmSlotRegistrySubKey, TpmSlotPropertyName, logicalDeviceId);
+	}
+	TRACEP(L"logicalDeviceId=", logicalDeviceId);
+
+	Tpm::EvictHmacKey((uint32_t)logicalDeviceId);
+
+	return ref new StatusCodeResponse(ResponseStatus::Success, request->Tag);
+}
+// ADDED: geertp 20/03/2018 <-
+
+// ADDED: geertp 23/03/2018 ->
+IResponse^ HandleLaunchProcess(IRequest^ request)
+{
+	TRACE(__FUNCTION__);
+
+	LaunchProcessRequest^ req = dynamic_cast<LaunchProcessRequest^>(request);
+
+	unsigned long returnCode;
+	string output;
+	std::wstring command(req->Command->Begin());
+	Utils::LaunchProcess(command, returnCode, output);
+	if (returnCode != 0)
+	{
+		throw DMExceptionWithErrorCode("Error: Launch process returned an error code.", returnCode);
+	}
+
+	auto outputW = Utils::MultibyteToWide(output.c_str());
+	return ref new StringResponse(ResponseStatus::Success, ref new Platform::String(outputW.c_str()), request->Tag);
+}
+// ADDED: geertp 23/03/2018 <-
+
 IResponse^ HandleGetWindowsUpdatePolicy(IRequest^ request)
 {
     TRACE(__FUNCTION__);

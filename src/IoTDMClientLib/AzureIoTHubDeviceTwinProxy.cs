@@ -39,17 +39,41 @@ namespace Microsoft.Devices.Management
         public delegate Task ResetConnectionAsync(DeviceClient existingClient);
         ResetConnectionAsync resetConnectionAsyncHandler;
 
-        public AzureIoTHubDeviceTwinProxy(DeviceClient deviceClient, ResetConnectionAsync resetConnectionAsyncHandler, LogAsync logAsyncHandler = null)
+        // ADDED: geertp 12/04/2018 ->
+        public delegate void ConnectionStatusChanged(DeviceClient sender, ConnectionStatus status, ConnectionStatusChangeReason reason);
+        ConnectionStatusChanged _connectionStatusChangedHandler;
+
+        public delegate void WaitingForInternet();
+        static WaitingForInternet _waitingForInternetHandler;
+        // ADDED: geertp 12/04/2018 <-
+
+        // CHANGED: geertp 12/04/2018 - signature changed
+        //public AzureIoTHubDeviceTwinProxy(DeviceClient deviceClient, ResetConnectionAsync resetConnectionAsyncHandler, LogAsync logAsyncHandler = null)
+        public AzureIoTHubDeviceTwinProxy(
+            DeviceClient deviceClient,
+            ResetConnectionAsync resetConnectionAsyncHandler,
+            LogAsync logAsyncHandler = null,
+            ConnectionStatusChanged connectionStatusChangedHandler = null,
+            WaitingForInternet waitingForInternetHandler = null)
         {
             this.deviceClient = deviceClient;
             this.resetConnectionAsyncHandler = resetConnectionAsyncHandler;
             this.logAsyncHandler = logAsyncHandler;
 
+            // ADDED: geertp 12/04/2018 ->
+            _connectionStatusChangedHandler = connectionStatusChangedHandler;
+            _waitingForInternetHandler = waitingForInternetHandler;
+            // ADDED: geertp 12/04/2018 <-
+
             this.deviceClient.SetConnectionStatusChangesHandler(async (ConnectionStatus status, ConnectionStatusChangeReason reason) =>
             {
-                string msg = "Connection changed: " + status.ToString() + " " + reason.ToString();
+                string msg = "Connection changed: " + status.ToString() + " " + reason.ToString() + $" ({deviceClient.GetHashCode()})";
                 System.Diagnostics.Debug.WriteLine(msg);
                 logAsyncHandler?.Invoke(msg, LoggingLevel.Verbose);
+
+                // ADDED:  geertp 12/04/2018 ->
+                _connectionStatusChangedHandler?.Invoke(deviceClient, status, reason);
+                // ADDED:  geertp 12/04/2018 <-
 
                 switch (reason)
                 {
@@ -211,6 +235,10 @@ namespace Microsoft.Devices.Management
         {
             while (true)
             {
+                // ADDED:  geertp 12/04/2018 ->
+                _waitingForInternetHandler();
+                // ADDED:  geertp 12/04/2018 <-
+
                 ConnectionProfile connections = NetworkInformation.GetInternetConnectionProfile();
                 bool internet = connections != null && connections.GetNetworkConnectivityLevel() != NetworkConnectivityLevel.None;
                 if (internet) break;
@@ -226,7 +254,7 @@ namespace Microsoft.Devices.Management
 
         private async Task InternalRefreshConnectionAsync()
         {
-            while (true)
+            //while (true)
             {
                 try
                 {
@@ -234,7 +262,7 @@ namespace Microsoft.Devices.Management
 
                     var devicTwinImpl = this;
                     await devicTwinImpl.resetConnectionAsyncHandler(devicTwinImpl.deviceClient);
-                    break;
+                    //break;
                 }
                 catch (IotHubCommunicationException e)
                 {
@@ -244,7 +272,7 @@ namespace Microsoft.Devices.Management
                 {
                     logAsyncHandler?.Invoke(e.ToString(), LoggingLevel.Error);
                 }
-                await Task.Delay(5 * 60 * 1000);
+                //await Task.Delay(5 * 60 * 1000);
             }
         }
 

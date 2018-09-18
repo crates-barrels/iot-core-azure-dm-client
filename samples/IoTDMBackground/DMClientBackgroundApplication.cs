@@ -55,7 +55,11 @@ namespace IoTDMBackground
             {
                 try
                 {
-                    connectionString = await tpmDevice.GetConnectionStringAsync();
+                    // CHANGED: geertp 22/08/2018 ->
+                    //connectionString = await tpmDevice.GetConnectionStringAsync();
+                    var conn = await tpmDevice.GetConnectionStringAsync().ConfigureAwait(false);
+                    connectionString = conn.Item1; // connection string
+                    // CHANGED: geertp 22/08/2018 <-
                     break;
                 }
                 catch (Exception)

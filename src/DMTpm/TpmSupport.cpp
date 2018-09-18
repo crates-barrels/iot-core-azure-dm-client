@@ -182,3 +182,12 @@ void Tpm::EvictHmacKey(int logicalId)
 	RunLimpet(to_wstring(logicalId) + L" -ehk");
 }
 
+// ADDED: geertp 20/03/2018 ->
+void Tpm::CreatePersistedHmacKey(int logicalId, const std::string& hmacKey)
+{
+	TRACE(__FUNCTION__);
+
+	RunLimpet(to_wstring(logicalId) + (std::wstring)L" -chk " + Utils::MultibyteToWide(hmacKey.c_str()));
+}
+// ADDED: geertp 20/03/2018 <-
+

@@ -54,18 +54,57 @@ namespace Microsoft.Devices.Management
             return (result as Message.StringResponse).Response;
         }
 
-        public async Task<string> GetConnectionStringAsync(int slot = -1, uint validity = 3600)
+        // ADDED: geertp 20/03/2018 ->
+        public async Task StoreServiceUrl(int slot = -1, string url = "")
+        {
+            var result = await this._systemConfiguratorProxy.SendCommandAsync(new Message.TpmStoreServiceUrlRequest(slot, url));
+        }
+
+        public async Task CreatePersistedHmacKey(int slot = -1, string hmacKey = "")
+        {
+            var result = await this._systemConfiguratorProxy.SendCommandAsync(new Message.TpmCreatePersistedHmacKeyRequest(slot, hmacKey));
+        }
+
+        public async Task DestroyServiceUrl(int slot = -1)
+        {
+            var result = await this._systemConfiguratorProxy.SendCommandAsync(new Message.TpmDestroyServiceUrlRequest(slot));
+        }
+
+        public async Task EvictHmacKey(int slot = -1)
+        {
+            var result = await this._systemConfiguratorProxy.SendCommandAsync(new Message.TpmEvictHmacKeyRequest(slot));
+        }
+
+        public async Task<(string, string)> GetConnectionStringAsync(int slot = -1, uint validity = 3600)
         {
             ServiceUrlParts serviceUrlParts = await GetServiceUrlParts(slot);
             string sasToken = await GetSASTokenAsync(slot, validity);
 
             string connectionString = "";
+            string deviceId = null;
             if ((serviceUrlParts.HostName.Length > 0) && (serviceUrlParts.DeviceId.Length > 0) && (sasToken.Length > 0))
             {
+                deviceId = serviceUrlParts.DeviceId;
                 connectionString = "HostName=" + serviceUrlParts.HostName + ";DeviceId=" + serviceUrlParts.DeviceId + ";SharedAccessSignature=" + sasToken;
             }
-            return connectionString;
+            return (connectionString, deviceId);
         }
+        // ADDED: geertp 20/03/2018 <-
+
+        // COMMENTED: geertp 20/03/2018 ->
+        //public async Task<string> GetConnectionStringAsync(int slot = -1, uint validity = 3600)
+        //{
+        //    ServiceUrlParts serviceUrlParts = await GetServiceUrlParts(slot);
+        //    string sasToken = await GetSASTokenAsync(slot, validity);
+
+        //    string connectionString = "";
+        //    if ((serviceUrlParts.HostName.Length > 0) && (serviceUrlParts.DeviceId.Length > 0) && (sasToken.Length > 0))
+        //    {
+        //        connectionString = "HostName=" + serviceUrlParts.HostName + ";DeviceId=" + serviceUrlParts.DeviceId + ";SharedAccessSignature=" + sasToken;
+        //    }
+        //    return connectionString;
+        //}
+        // COMMENTED: geertp 20/03/2018 <-
 
         SystemConfiguratorProxy _systemConfiguratorProxy;
     }

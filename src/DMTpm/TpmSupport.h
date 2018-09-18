@@ -25,6 +25,9 @@ public:
     static void StoreServiceUrl(int logicalId, const std::string& url);
     static void ImportSymetricIdentity(int logicalId, const std::string& hostageFile);
     static void EvictHmacKey(int logicalId);
+	// ADDED: geertp 20/03/2018 ->
+	static void Tpm::CreatePersistedHmacKey(int logicalId, const std::string& hmacKey);
+	// ADDED: geertp 20/03/2018 <-
     static std::string GetServiceUrl(int logicalId);
     static std::string GetSASToken(int logicalId, unsigned int durationInSeconds);
     static void ClearTPM();

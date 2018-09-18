@@ -28,6 +28,9 @@ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "ExitDM.h"
 #include "FactoryReset.h"
 #include "FileTransfer.h"
+// ADDED: geertp 23/03/2018 ->
+#include "LaunchProcess.h"
+// ADDED: geertp 23/03/2018 <-
 #include "ListApps.h"
 #include "Reboot.h"
 #include "RemoteWipe.h"
